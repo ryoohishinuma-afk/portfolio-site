@@ -1,16 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { Routes, Route, Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
+import { WORKS } from './works-data'
+import WorkDetail from './WorkDetail'
 import './App.css'
-
-/* ─── Data ─── */
-const WORKS = [
-  { id: 1, num: '01', name: 'カルテAI', desc: '音声録音・問診からAIがカルテを自動生成する医療向けWebアプリ。整形外科クリニックの診察を効率化。', tags: ['React', 'Claude AI', 'Supabase'], link: 'https://karte-ai-app.netlify.app' },
-  { id: 2, num: '02', name: 'SOAP AI', desc: '音声入力からSOAP記録を自動生成するツール。理学療法士の記録業務を大幅に削減する。', tags: ['Python', 'LLM', '音声処理'], link: null },
-  { id: 3, num: '03', name: 'X線角度計測', desc: 'X線画像から関節角度を自動計測するコンピュータービジョンツール。整形外科の診断補助として開発。', tags: ['Python', 'OpenCV', '医療画像'], link: null },
-  { id: 4, num: '04', name: 'YOLO Training', desc: '医療画像のYOLOv8トレーニング環境。骨・関節のセグメンテーションモデルを構築。', tags: ['Python', 'YOLOv8', 'ML'], link: null },
-  { id: 5, num: '05', name: 'DiffusionXray', desc: 'Few-Shot学習とDiffusionモデルによるX線ランドマーク検出。少ない学習データで高精度を実現。', tags: ['Python', 'Diffusion', 'CV'], link: null },
-  { id: 6, num: '06', name: 'RTR App', desc: '理学療法士向け臨床評価・患者管理ツール。評価結果の記録と分析を効率化。', tags: ['React', 'Firebase'], link: null },
-]
 
 const SKILLS = [
   {
@@ -251,22 +244,21 @@ function Works() {
       <div className="works-title">WORKS</div>
 
       <div className="works-grid">
-        {WORKS.map((w, i) => {
+        {WORKS.filter(w => !w.hidden).map((w, i) => {
           const isBlack = i % 2 === 0
           return (
             <FadeUp key={w.id} delay={i * 60}>
-              <div className={`work-card ${isBlack ? 'work-card-black' : 'work-card-white'}`}>
-                <div className="work-num">{w.num}</div>
-                <div className="work-name">{w.name}</div>
-                <p className="work-desc">{w.desc}</p>
-                <div className="work-tags">
-                  {w.tags.map(t => <span key={t} className="tag">{t}</span>)}
+              <Link to={`/works/${w.slug}`} style={{ display: 'block', textDecoration: 'none' }}>
+                <div className={`work-card ${isBlack ? 'work-card-black' : 'work-card-white'}`}>
+                  <div className="work-num">{w.num}</div>
+                  <div className="work-name">{w.name}</div>
+                  <p className="work-desc">{w.desc}</p>
+                  <div className="work-tags">
+                    {w.tags.map(t => <span key={t} className="tag">{t}</span>)}
+                  </div>
+                  <span className="work-link">詳細を見る →</span>
                 </div>
-                {w.link
-                  ? <a href={w.link} target="_blank" rel="noreferrer" className="work-link">View App →</a>
-                  : <span className="work-link" style={{ opacity: 0.4 }}>開発中</span>
-                }
-              </div>
+              </Link>
             </FadeUp>
           )
         })}
@@ -320,10 +312,28 @@ function Skills() {
 /* ─── Contact ─── */
 function Contact() {
   const [status, setStatus] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setStatus('送信しました。ありがとうございます！')
+    setSubmitting(true)
+    const data = new FormData(e.target)
+    try {
+      const res = await fetch('https://formspree.io/f/meevywyq', {
+        method: 'POST',
+        body: data,
+        headers: { Accept: 'application/json' },
+      })
+      if (res.ok) {
+        setStatus('送信しました。ありがとうございます！')
+      } else {
+        setStatus('送信に失敗しました。直接メールでご連絡ください。')
+      }
+    } catch {
+      setStatus('送信に失敗しました。直接メールでご連絡ください。')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -334,7 +344,7 @@ function Contact() {
 
       <div className="contact-form-wrap">
         <p className="contact-lead">
-          医療AIの開発・導入をお考えの方、<br />
+          LP制作・業務効率化・医療AIの開発など、<br />
           受託開発・コラボレーション・取材など、<br />
           お気軽にご連絡ください。
         </p>
@@ -346,24 +356,26 @@ function Contact() {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="form-label">お名前 *</label>
-                <input className="form-input" type="text" required placeholder="山田 太郎" />
+                <input className="form-input" type="text" name="name" required placeholder="山田 太郎" />
               </div>
               <div className="form-group">
                 <label className="form-label">メールアドレス *</label>
-                <input className="form-input" type="email" required placeholder="example@email.com" />
+                <input className="form-input" type="email" name="email" required placeholder="example@email.com" />
               </div>
               <div className="form-group">
                 <label className="form-label">ご相談内容 *</label>
-                <textarea className="form-textarea" required placeholder="医療AIの導入について相談したい..." />
+                <textarea className="form-textarea" name="message" required placeholder="LP制作・業務効率化・医療AIの導入など、お気軽にどうぞ..." />
               </div>
-              <button type="submit" className="form-submit">送信する →</button>
+              <button type="submit" className="form-submit" disabled={submitting}>
+                {submitting ? '送信中...' : '送信する →'}
+              </button>
             </form>
           )}
         </div>
       </div>
 
       <div className="contact-sns">
-        <a href="https://github.com" target="_blank" rel="noreferrer">GitHub ↗</a>
+        <a href="https://github.com/ryoohishinuma-afk" target="_blank" rel="noreferrer">GitHub ↗</a>
         <a href="https://x.com/footshake" target="_blank" rel="noreferrer">X (Twitter) ↗</a>
         <a href="https://note.com" target="_blank" rel="noreferrer">note ↗</a>
       </div>
@@ -378,7 +390,7 @@ function Footer() {
       <div className="footer-logo">RH.</div>
       <div className="footer-copy">© 2026 Ryo Hishinuma. All rights reserved.</div>
       <div className="footer-links">
-        <a href="https://github.com" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://github.com/ryoohishinuma-afk" target="_blank" rel="noreferrer">GitHub</a>
         <a href="https://x.com/footshake" target="_blank" rel="noreferrer">X</a>
         <a href="https://note.com" target="_blank" rel="noreferrer">note</a>
       </div>
@@ -442,8 +454,8 @@ function SectionNav() {
   )
 }
 
-/* ─── App ─── */
-export default function App() {
+/* ─── Home ─── */
+function Home() {
   return (
     <>
       <Nav />
@@ -457,5 +469,15 @@ export default function App() {
       <StickyCTA />
       <SectionNav />
     </>
+  )
+}
+
+/* ─── App ─── */
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/works/:slug" element={<WorkDetail />} />
+    </Routes>
   )
 }
