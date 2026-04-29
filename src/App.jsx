@@ -142,6 +142,7 @@ function Nav() {
         <a href="#intro">About</a>
         <a href="#works">Works</a>
         <a href="#skills">Skills</a>
+        <a href="#services">Services</a>
         <a href="#contact">Contact</a>
       </div>
       <a href="#contact" className="nav-cta">お問い合わせ</a>
@@ -309,6 +310,69 @@ function Skills() {
   )
 }
 
+/* ─── Services ─── */
+const SERVICES = [
+  {
+    num: '01',
+    title: 'LP制作',
+    sub: 'Landing Page',
+    desc: 'クリニック・士業・スモールビジネス向けに、集客に特化したランディングページを制作します。患者・顧客の行動導線を設計し、問い合わせ・予約につながるページを構築。',
+    items: ['ファーストビュー設計', 'モバイル対応', 'SEO最適化', 'フォーム・予約導線'],
+    price: '¥80,000〜',
+    dark: true,
+  },
+  {
+    num: '02',
+    title: '業務効率化',
+    sub: 'Web App / Automation',
+    desc: '紙・Excel・LINEで回している業務をWebアプリで自動化します。勤怠管理・シフト管理・申請フロー・書類生成など、現場に合わせてフルスクラッチで開発。',
+    items: ['要件定義〜開発〜運用', 'Supabase / Firebase', 'モバイル対応', 'クリニック実績あり'],
+    price: '¥150,000〜',
+    dark: false,
+  },
+  {
+    num: '03',
+    title: '医療AI導入',
+    sub: 'Medical AI',
+    desc: 'カルテ自動生成・書類作成・診断支援など、クリニックの業務にAIを組み込みます。Claude API・GPT-4oを活用し、現場の課題に合わせたAIシステムを設計・実装。',
+    items: ['カルテAI・SOAP自動生成', '書類テンプレート化', 'Slack連携・通知', 'PT歴10年の現場知見'],
+    price: '要相談',
+    dark: true,
+  },
+]
+
+function Services() {
+  return (
+    <section id="services" className="works">
+      <div className="works-title">SERVICES</div>
+
+      <div className="works-grid">
+        {SERVICES.map((s, i) => (
+          <FadeUp key={s.num} delay={i * 60}>
+            <div className={`work-card ${s.dark ? 'work-card-black' : 'work-card-white'}`}>
+              <div className="work-num">{s.num}</div>
+              <div className="work-name">{s.title}</div>
+              <div style={{ fontSize: '11px', letterSpacing: '0.1em', marginBottom: '12px', opacity: 0.5 }}>{s.sub}</div>
+              <p className="work-desc">{s.desc}</p>
+              <ul style={{ margin: '12px 0', paddingLeft: '16px', fontSize: '13px', opacity: 0.8, lineHeight: 1.8 }}>
+                {s.items.map(item => <li key={item}>{item}</li>)}
+              </ul>
+              <div className="work-tags">
+                <span className="tag" style={{ fontSize: '14px', fontWeight: '700' }}>{s.price}</span>
+              </div>
+              <a href="#contact" className="work-link">相談する →</a>
+            </div>
+          </FadeUp>
+        ))}
+      </div>
+
+      <div className="works-marquee-bar">
+        <Marquee text="LP制作  /  業務効率化  /  医療AI  /  React  /  Supabase  /  Claude API  /  " itemClass="marquee-item-green" />
+      </div>
+    </section>
+  )
+}
+
 /* ─── Contact ─── */
 function Contact() {
   const [status, setStatus] = useState('')
@@ -464,6 +528,7 @@ function Home() {
       <Intro />
       <Works />
       <Skills />
+      <Services />
       <Contact />
       <Footer />
       <StickyCTA />
